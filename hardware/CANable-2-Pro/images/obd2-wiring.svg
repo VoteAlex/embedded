@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="560" viewBox="0 0 940 560" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="940" height="560" fill="#0f1117"/>
+  <text x="470" y="40" fill="#ffffff" font-size="26" font-weight="bold" text-anchor="middle">Porsche 911 OBD-II  →  CANable 2 Pro — Wiring</text>
+  <text x="470" y="68" fill="#9aa4b2" font-size="15" text-anchor="middle">3 wires only · ignition ON · onboard 120 Ω termination OFF · do NOT use +12 V / 5 V</text>
+
+  <!-- ===================== OBD-II connector ===================== -->
+  <text x="210" y="120" fill="#e6edf3" font-size="18" font-weight="bold" text-anchor="middle">OBD-II port (car) — looking into socket</text>
+
+  <!-- connector body (trapezoid) -->
+  <polygon points="70,150 350,150 335,250 85,250" fill="#1c2230" stroke="#3a455c" stroke-width="2"/>
+
+  <!-- pins: top row 1..8, bottom row 9..16 -->
+  <!-- top row -->
+  <g>
+    <!-- generic pins -->
+    <!-- pin positions top: x = 100 + (i-1)*30, y=180 -->
+    <!-- We'll draw all, highlight 4,6 -->
+    <!-- 1 -->
+    <circle cx="100" cy="180" r="9" fill="#39414f"/><text x="100" y="208" fill="#7e8aa0" font-size="11" text-anchor="middle">1</text>
+    <!-- 2 -->
+    <circle cx="130" cy="180" r="9" fill="#39414f"/><text x="130" y="208" fill="#7e8aa0" font-size="11" text-anchor="middle">2</text>
+    <!-- 3 -->
+    <circle cx="160" cy="180" r="9" fill="#39414f"/><text x="160" y="208" fill="#7e8aa0" font-size="11" text-anchor="middle">3</text>
+    <!-- 4 GND (black) -->
+    <circle cx="190" cy="180" r="11" fill="#000000" stroke="#ffffff" stroke-width="2"/><text x="190" y="208" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="bold">4</text>
+    <!-- 5 (signal gnd alt) -->
+    <circle cx="220" cy="180" r="9" fill="#39414f"/><text x="220" y="208" fill="#7e8aa0" font-size="11" text-anchor="middle">5</text>
+    <!-- 6 CAN-H (red) -->
+    <circle cx="250" cy="180" r="11" fill="#e5484d" stroke="#ffffff" stroke-width="2"/><text x="250" y="208" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="bold">6</text>
+    <!-- 7 -->
+    <circle cx="280" cy="180" r="9" fill="#39414f"/><text x="280" y="208" fill="#7e8aa0" font-size="11" text-anchor="middle">7</text>
+    <!-- 8 -->
+    <circle cx="310" cy="180" r="9" fill="#39414f"/><text x="310" y="208" fill="#7e8aa0" font-size="11" text-anchor="middle">8</text>
+  </g>
+  <!-- bottom row 9..16, y=232 -->
+  <g>
+    <circle cx="100" cy="232" r="9" fill="#39414f"/><text x="100" y="258" fill="#7e8aa0" font-size="11" text-anchor="middle">9</text>
+    <circle cx="130" cy="232" r="9" fill="#39414f"/><text x="130" y="258" fill="#7e8aa0" font-size="11" text-anchor="middle">10</text>
+    <circle cx="160" cy="232" r="9" fill="#39414f"/><text x="160" y="258" fill="#7e8aa0" font-size="11" text-anchor="middle">11</text>
+    <circle cx="190" cy="232" r="9" fill="#39414f"/><text x="190" y="258" fill="#7e8aa0" font-size="11" text-anchor="middle">12</text>
+    <circle cx="220" cy="232" r="9" fill="#39414f"/><text x="220" y="258" fill="#7e8aa0" font-size="11" text-anchor="middle">13</text>
+    <!-- 14 CAN-L (green) -->
+    <circle cx="250" cy="232" r="11" fill="#30a46c" stroke="#ffffff" stroke-width="2"/><text x="250" y="258" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="bold">14</text>
+    <circle cx="280" cy="232" r="9" fill="#39414f"/><text x="280" y="258" fill="#7e8aa0" font-size="11" text-anchor="middle">15</text>
+    <!-- 16 +12V do not use -->
+    <circle cx="310" cy="232" r="11" fill="#1c2230" stroke="#e5484d" stroke-width="2" stroke-dasharray="3 3"/><text x="310" y="258" fill="#e5484d" font-size="11" text-anchor="middle" font-weight="bold">16</text>
+  </g>
+  <text x="310" y="284" fill="#e5484d" font-size="11" text-anchor="middle">+12V · DO NOT</text>
+
+  <!-- ===================== CANable ===================== -->
+  <text x="760" y="120" fill="#e6edf3" font-size="18" font-weight="bold" text-anchor="middle">CANable 2 Pro — screw terminal</text>
+  <rect x="640" y="150" width="240" height="150" rx="10" fill="#1c2230" stroke="#3a455c" stroke-width="2"/>
+  <rect x="690" y="120" width="120" height="34" rx="6" fill="#11151c" stroke="#3a455c"/>
+  <text x="750" y="142" fill="#7e8aa0" font-size="13" text-anchor="middle">USB-C → Mac</text>
+
+  <!-- terminal blocks: order on board = GND, CANH, CANL (left to right), no 5V -->
+  <text x="760" y="318" fill="#7e8aa0" font-size="12" text-anchor="middle">3-pin terminal — order as printed: GND · CANH · CANL</text>
+  <!-- GND (left) -->
+  <rect x="665" y="210" width="46" height="60" rx="4" fill="#2a3140" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="688" cy="225" r="7" fill="#ffffff"/>
+  <text x="688" y="290" fill="#ffffff" font-size="13" text-anchor="middle" font-weight="bold">GND</text>
+  <!-- CANH (middle) -->
+  <rect x="737" y="210" width="46" height="60" rx="4" fill="#2a3140" stroke="#e5484d" stroke-width="2"/>
+  <circle cx="760" cy="225" r="7" fill="#e5484d"/>
+  <text x="760" y="290" fill="#e5484d" font-size="13" text-anchor="middle" font-weight="bold">CANH</text>
+  <!-- CANL (right) -->
+  <rect x="809" y="210" width="46" height="60" rx="4" fill="#2a3140" stroke="#30a46c" stroke-width="2"/>
+  <circle cx="832" cy="225" r="7" fill="#30a46c"/>
+  <text x="832" y="290" fill="#30a46c" font-size="13" text-anchor="middle" font-weight="bold">CANL</text>
+
+  <!-- ===================== WIRES ===================== -->
+  <!-- RED: OBD pin6 (250,180) -> CANH middle (760,210) -->
+  <path d="M250,180 C 430,90 560,110 760,208" fill="none" stroke="#e5484d" stroke-width="5"/>
+  <!-- GREEN: OBD pin14 (250,232) -> CANL right (832,210) -->
+  <path d="M250,232 C 460,360 640,300 832,210" fill="none" stroke="#30a46c" stroke-width="5"/>
+  <!-- BLACK: OBD pin4 (190,180) -> GND left (688,210) -->
+  <path d="M190,180 C 340,470 560,470 688,210" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="round"/>
+  <!-- black outline so it shows on dark bg -->
+  <path d="M190,180 C 340,470 560,470 688,210" fill="none" stroke="#cdd3dc" stroke-width="1" stroke-dasharray="6 6"/>
+
+  <!-- ===================== LEGEND ===================== -->
+  <rect x="70" y="360" width="800" height="150" rx="10" fill="#11151c" stroke="#2a3140"/>
+  <text x="90" y="392" fill="#e6edf3" font-size="17" font-weight="bold">Connections (3 wires)</text>
+
+  <circle cx="100" cy="420" r="8" fill="#e5484d"/>
+  <text x="120" y="425" fill="#e6edf3" font-size="15">RED&#160;&#160;&#160;= CAN-H&#160;&#160;:&#160; OBD pin 6&#160;&#160;&#8594;&#160; CANable CANH</text>
+
+  <circle cx="100" cy="450" r="8" fill="#30a46c"/>
+  <text x="120" y="455" fill="#e6edf3" font-size="15">GREEN = CAN-L&#160;&#160;:&#160; OBD pin 14&#160;&#8594;&#160; CANable CANL</text>
+
+  <circle cx="100" cy="480" r="8" fill="#ffffff"/>
+  <text x="120" y="485" fill="#e6edf3" font-size="15">BLACK = GND&#160;&#160;&#160;&#160;:&#160; OBD pin 4 (or 5)&#160;&#8594;&#160; CANable GND</text>
+
+  <text x="520" y="420" fill="#f5a524" font-size="13">⚠ If no traffic appears, swap RED&#8596;GREEN</text>
+  <text x="520" y="442" fill="#f5a524" font-size="13">&#160;&#160;&#160;(CAN-H/L reversed is harmless).</text>
+  <text x="520" y="470" fill="#e5484d" font-size="13">⚠ Never wire OBD pin 16 (+12 V) to the board.</text>
+  <text x="520" y="492" fill="#9aa4b2" font-size="13">Bitrate: 500 kbit/s · termination OFF.</text>
+</svg>

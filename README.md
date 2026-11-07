@@ -13,6 +13,8 @@ Each board has its own folder with a detailed `SUMMARY.md`, schematic images, da
 | [JC-ESP32P4-M3-DEV](#jc-esp32p4-m3-dev) | ESP32-P4 (dual-core RISC-V, 400 MHz) + ESP32-C6 co-proc | Wi-Fi 6 · BT 5 · 100 M Ethernet | Full dev board with MIPI display | [ESP32-P4-M3-DEV/](hardware/ESP32-P4-M3-DEV/) |
 | [HyperPixel 2.1 Round](#hyperpixel-21-round) | — (display only) | — | 2.1″ round IPS touch display · RGB666 parallel | [HyperPixel-Round/](hardware/HyperPixel-Round/) |
 | [Waveshare RP2350B-Plus-W](#waveshare-rp2350b-plus-w) | RP2350B (dual-core Cortex-M33 / RISC-V, 150 MHz) | Wi-Fi 4 · BT 5.2 | Pico-compatible · 41 GPIO · 16 MB flash | [RP2350B-Plus-W/](hardware/RP2350B-Plus-W/) |
+| [CANable 2.0 Pro](#canable-20-pro) | STM32G431 (Cortex-M4F, 170 MHz) | USB ↔ CAN / CAN-FD (isolated) | USB-C dongle · 4-pin CAN terminal | [CANable-2-Pro/](hardware/CANable-2-Pro/) |
+| [Raspberry Pi 5 + X1001](#raspberry-pi-5--x1001) | BCM2712 (4× Cortex-A76, 2.4 GHz) | Gigabit Ethernet · Wi-Fi ac · BT 5.0 | SBC · 8 GB RAM · NVMe via PCIe HAT | [Raspberry-Pi-5/](hardware/Raspberry-Pi-5/) |
 
 ---
 
@@ -99,3 +101,48 @@ Manufacturer: Waveshare
 
 → **[Full hardware reference](hardware/RP2350B-Plus-W/SUMMARY.md)**
 
+---
+
+## CANable 2.0 Pro
+
+**Isolated USB-to-CAN / CAN-FD adapter — open firmware, native SocketCAN**  
+Manufacturer: Makerbase (MKS) · CANable open-hardware design by Openlight Labs
+
+| | |
+|-|-|
+| MCU | STM32G431C8T6 — Cortex-M4F @ 170 MHz with built-in FDCAN |
+| CAN | CAN 2.0A/B up to 1 Mbit/s · CAN FD up to 5 Mbit/s |
+| Isolation | 2.5 kV galvanic isolation (USB ↔ CAN) |
+| Host | USB 2.0 Full-Speed · USB Type-C |
+| CAN connector | 4-pin screw terminal (CANH · CANL · GND · 5V) |
+| Termination | Onboard 120 Ω, jumper-selectable |
+| Firmware | candleLight (SocketCAN `gs_usb`) or slcan |
+
+→ **[Full hardware reference](hardware/CANable-2-Pro/SUMMARY.md)**
+
+
+
+---
+
+## Raspberry Pi 5 + X1001
+
+**Quad-core SBC with NVMe boot via the PCIe lane**  
+Manufacturer: Raspberry Pi Ltd · NVMe HAT: Geekworm X1001
+
+| | |
+|-|-|
+| SoC | BCM2712 — 4× Arm Cortex-A76 @ 2.4 GHz |
+| RAM | 8 GB LPDDR4X-4267 |
+| GPU | VideoCore VII — OpenGL ES 3.1 · Vulkan 1.2 |
+| PCIe | 1× lane (FFC) — Gen 2 default, **Gen 3 ≈ 800 MB/s** via `dtparam=pciex1_gen=3` |
+| Storage | microSD + NVMe M.2 M-Key (2230–2280) through the X1001 |
+| Networking | Gigabit Ethernet · Wi-Fi 802.11ac · Bluetooth 5.0 |
+| USB | 2× USB 3.0 · 2× USB 2.0 |
+| Display | 2× micro-HDMI, 4Kp60 |
+| Power | USB-C PD — 5 V/5 A recommended for NVMe |
+
+Covers NVMe boot order, SD→NVMe migration, a measured SD vs NVMe benchmark
+(**~170× random write**), Active Cooler fan control, SMART monitoring, and
+headless pitfalls.
+
+→ **[Full hardware reference](hardware/Raspberry-Pi-5/SUMMARY.md)**
