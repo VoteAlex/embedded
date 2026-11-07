@@ -1,0 +1,28 @@
+include:
+  file: trixie-minbase.yaml
+
+device:
+  hostname: porsche
+  storage_type: nvme
+  user1sudo: nopasswd
+
+# The X1001 HAT M.2 slot
+trait:
+  hw:storage:nvme: true
+
+layer:
+  app: porsche_image
+  extra: rpi-splash-screen
+
+image:
+  name: porsche_image
+  compression: zstd
+
+ssh:
+  pubkey_user1: /src/.ssh-pubkey
+
+splash:
+  image_path: /src/splash.tga
+
+kiosk:
+  url: "https://www.porsche.com"

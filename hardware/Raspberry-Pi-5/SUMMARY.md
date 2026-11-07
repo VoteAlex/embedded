@@ -423,3 +423,12 @@ The previous *Ferdinand* infotainment deployment (`nats-server`, `nats-gateway`,
 `navi`, `media`, `infotainment-slint`, plus its D-Bus policy and `seatd`) was removed in
 Nov 2026 after a full backup. Sources remain at `~/GitHub/ferdinand` on the Mac; the deploy
 script pushed binaries to `/opt/infotainment/bin`. Tailscale was removed at the same time.
+
+## Building a replacement image
+
+Everything above describes a system that grew out of a Raspberry Pi OS install
+plus manual changes. [`porsche_image/`](../../porsche_image/) takes the opposite route: it
+builds a Debian Trixie image for this board from a declarative config with
+`rpi-image-gen`, so the result is reproducible and carries an SBOM. The PCIe
+Gen 3 setting and the journal cap described here are baked in. The build runs
+on the Mac in an arm64 Debian container — `./build.sh`, no Pi required.

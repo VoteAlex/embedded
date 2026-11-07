@@ -1,0 +1,31 @@
+# METABEGIN
+# X-Env-Layer-Name: porsche_image
+# X-Env-Layer-Version: 1.0.0
+# X-Env-Layer-Category: app
+# X-Env-Layer-Desc: Chromium kiosk on Wayland for a Raspberry Pi 5 with the
+#  X1001 NVMe HAT. Installs the kiosk packages and a systemd service that
+#  starts it at boot as the user created by device-user-admin.
+# X-Env-Layer-Requires: device-user-admin,systemd-net-min,systemd-timesyncd
+#
+# X-Env-VarPrefix: kiosk
+#
+# X-Env-Var-url: https://www.porsche.com
+# X-Env-Var-url-Desc: URL the kiosk loads at startup.
+# X-Env-Var-url-Required: n
+# X-Env-Var-url-Valid: regex:^https://[a-zA-Z0-9.-]+[a-zA-Z0-9]/?.*$
+# X-Env-Var-url-Set: y
+# METAEND
+---
+mmdebstrap:
+  packages:
+    - cage
+    - chromium
+    - seatd
+  customize-hooks:
+    - |
+      export KIOSK_USER="$IGconf_device_user1"
+      export KIOSK_RUNDIR_NAME="kiosk"
+      export KIOSK_URL="$IGconf_kiosk_url"
+      export KIOSK_APP="/usr/bin/chromium $KIOSK_URL --kiosk --noerrdialogs --disable-infobars --no-first-run --enable-features=OverlayScrollbar --start-maximized --user-data-dir=/run/$KIOSK_RUNDIR_NAME/chromium"
+      envsubst < kiosk.service.tpl > $1/etc/systemd/system/kiosk.service
+    - $BDEBSTRAP_HOOKS/enable-units "$1" seatd kiosk

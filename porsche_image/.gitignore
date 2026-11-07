@@ -1,0 +1,6 @@
+out/
+work/
+.ssh-pubkey
+.wifi
+.wifi-profile/
+.DS_Store

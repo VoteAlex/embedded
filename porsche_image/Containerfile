@@ -1,0 +1,25 @@
+# Debian Trixie arm64 build host for rpi-image-gen, so no Raspberry Pi is
+# needed. install_deps.sh runs once here rather than on every image build.
+
+FROM debian:trixie
+
+ARG RIG_REF=master
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates git sudo procps file openssl python3
+
+RUN git clone https://github.com/raspberrypi/rpi-image-gen.git /opt/rpi-image-gen \
+ && git -C /opt/rpi-image-gen checkout --detach "${RIG_REF}" \
+ && git -C /opt/rpi-image-gen log -1 --format='%H %ad %s' --date=short > /opt/rig-version
+
+RUN /opt/rpi-image-gen/install_deps.sh \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# We are already uid 0 in our own namespace, so bin/ns skips podman unshare.
+ENV PATH=/opt/rpi-image-gen:$PATH
+WORKDIR /src
+ENTRYPOINT ["/opt/rpi-image-gen/rpi-image-gen"]
+CMD ["--help"]

@@ -145,4 +145,6 @@ Covers NVMe boot order, SD→NVMe migration, a measured SD vs NVMe benchmark
 (**~170× random write**), Active Cooler fan control, SMART monitoring, and
 headless pitfalls.
 
-→ **[Full hardware reference](hardware/Raspberry-Pi-5/SUMMARY.md)**
+→ **[Full hardware reference](hardware/Raspberry-Pi-5/SUMMARY.md)**  
+→ **[porsche_image](porsche_image/)** — reproducible Debian Trixie images for
+this board via `rpi-image-gen`, built on the Mac in a container
