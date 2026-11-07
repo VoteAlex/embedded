@@ -67,7 +67,9 @@ routes that lane to an M.2 M-Key slot. Consequences worth knowing:
 - Default link speed is **Gen 2 (5 GT/s)** ≈ 450 MB/s usable.
 - **Gen 3 (8 GT/s)** ≈ 800 MB/s is unlocked with one line in `config.txt`. It is stable on most
   drives but is explicitly *not* guaranteed by Raspberry Pi — the trace lengths are not certified
-  for it. Test before relying on it.
+  for it. Test before relying on it. Measured here: a clean **~2× over Gen 2**, zero link errors
+  (see [Gen 2 vs Gen 3](#gen-2-vs-gen-3)). Under sustained load the SSD's temperature, not the
+  link, becomes the limit.
 
 ```ini
 # /boot/firmware/config.txt
@@ -180,6 +182,46 @@ Takeaways:
 
 Reusable benchmark script: `tools/diskbench.sh` in this folder.
 
+### Gen 2 vs Gen 3
+
+Measured back to back on this unit by toggling `dtparam=pciex1_gen=3` and rebooting. Same file,
+same `fio` parameters, so the two columns are directly comparable (they are from a later run than
+the table above, hence the slightly different Gen 3 figures).
+
+| Test | Gen 2 (5 GT/s) | Gen 3 (8 GT/s) | Factor |
+|------|----------------|----------------|--------|
+| Sequential read, 1 M | 431.1 MB/s | **852.5 MB/s** | 1.98× |
+| Sequential write, 1 M | 382.7 MB/s | **752.3 MB/s** | 1.97× |
+| Random read, 4 k QD32 | 108 034 IOPS | **212 585 IOPS** | 1.97× |
+| Random write, 4 k QD32 | 95 459 IOPS | **135 877 IOPS** | 1.42× |
+
+So yes — Gen 3 roughly **doubles** throughput, and on this drive it ran without a single PCIe
+error (`lspci | grep -i AER`, `num_err_log_entries` stable, link never dropped to 5 GT/s).
+Random writes gain less because the SSD's own flash, not the link, is the bottleneck there.
+
+### Sustained load and thermal throttling
+
+The numbers above are **bursts**. Under continuous mixed load the limit stops being the PCIe link
+and becomes the SSD controller temperature:
+
+| 2 min `randrw` 70/30, 64 k, QD32 ×4 | read | write | hotspot (`Temperature Sensor 2`) |
+|---|---|---|---|
+| Burst reference (20 s) | 852.5 MB/s | 752.3 MB/s | — |
+| Cooler ~3 cm from the SSD | 500.5 MB/s | 215.0 MB/s | **85 °C** |
+| Cooler repositioned over the SSD | 520.3 MB/s | 223.9 MB/s | **77 °C** |
+
+The 960 EVO's own thresholds are `wctemp` 350 K = **77 °C** (warning) and `cctemp` 352 K =
+**79 °C** (critical). Note that `temperature` / `Temperature Sensor 1` (the composite) stayed at a
+harmless ~52 °C the whole time — **only sensor 2, the controller hotspot, hits the limit**. Reading
+just the composite value hides the problem completely.
+
+Also note what does *not* help: the Pi's Active Cooler is driven by the **SoC** thermal zone. The
+SoC sat at 51 °C, so the fan stayed at step 1 (~2000 RPM) while the SSD was cooking 2 cm away.
+Moving the cooler closer bought 8 °C and ~4 % throughput, but the drive still throttles.
+
+If you need sustained Gen 3 throughput, give the M.2 module its **own heatsink**; the HAT ships
+without one and the Pi's fan control will never react to the SSD.
+
 ---
 
 ## Active Cooler / fan control
@@ -249,6 +291,20 @@ Fields that matter:
 | `Temperature Sensor 2` | 47 °C | Controller — the one that throttles |
 | `critical_warning` | 0 | Anything non-zero needs attention now |
 
+**Watch sensor 2, not `temperature`.** On this drive the composite reads ~25 °C lower than the
+controller hotspot. Under load the composite looked fine at 52 °C while sensor 2 was at 85 °C and
+the drive was throttling hard — see
+[Sustained load and thermal throttling](#sustained-load-and-thermal-throttling). The drive's own
+limits are visible in `nvme id-ctrl`:
+
+```sh
+sudo nvme id-ctrl /dev/nvme0 | grep -E 'wctemp|cctemp'   # 350 K = 77 °C warn, 352 K = 79 °C crit
+sudo nvme smart-log /dev/nvme0 | grep -i 'Temperature Sensor'
+```
+
+`nvme smart-log` printing `Invalid Field in Command` alongside valid output is harmless — the tool
+probes optional log pages the drive does not implement. It is not a link problem.
+
 TRIM is handled by the weekly `fstrim.timer` (enabled by default on Raspberry Pi OS). Prefer it
 over the `discard` mount option — inline discard costs latency on every delete.
 
@@ -300,7 +356,7 @@ sudo fstrim -v /
 
 | Change | Why |
 |--------|-----|
-| `dtparam=pciex1_gen=3` | ~1.75× sequential throughput over Gen 2 |
+| `dtparam=pciex1_gen=3` | ~2× throughput over Gen 2, measured, zero link errors |
 | `BOOT_ORDER=0xf416` | NVMe first, SD retained as rescue |
 | `fstrim.timer` (default, verified) | Sustains NVMe write performance |
 | `noatime` on `/` | Avoids a metadata write on every read |
@@ -318,8 +374,9 @@ systemd-analyze blame | head -15
 systemd-analyze critical-chain
 ```
 
-Net effect of the last three items: **12.58 s → 4.98 s** total startup. What remained was the
-application stack itself (`nats-sim` and `nats-gateway` at ~2.2 s each), not the OS.
+Net effect of the last three items: **12.58 s → 4.98 s** total startup, and 4.39 s once the
+application stack was removed as well. What remained before that was the applications themselves
+(`nats-sim` and `nats-gateway` at ~2.2 s each), not the OS.
 
 ---
 
@@ -333,6 +390,10 @@ application stack itself (`nats-sim` and `nats-gateway` at ~2.2 s each), not the
 - **The SD card becomes a frozen snapshot** the moment you switch. Useful as a rescue image,
   but it drifts out of date — do not treat it as a backup.
 - **The fan appears dead at idle.** It is running at step 1; check `fan1_input` before replacing.
+- **The Active Cooler does not cool the SSD.** Its fan curve follows the *SoC* thermal zone only.
+  The SoC can idle at 51 °C while the NVMe controller sits at 85 °C and throttles — the fan will
+  not spin up for it. Give the M.2 module its own heatsink.
+- **`nvme smart-log` composite `temperature` hides the hotspot.** Read `Temperature Sensor 2`.
 - **Underpowered PSU** causes USB current warnings and NVMe dropouts. Use the 27 W official unit.
 - **No `/dev/fb0` on a Pi 5 with `vc4-kms-v3d`.** Legacy framebuffer tools and framebuffer
   screen-grab tricks do not work; everything goes through DRM.
@@ -354,7 +415,11 @@ application stack itself (`nats-sim` and `nats-gateway` at ~2.2 s each), not the
 | PCIe link | 8 GT/s × 1 (Gen 3) |
 | Ethernet | 192.168.178.158 (default route) |
 | Wi-Fi | 192.168.178.150, profile `FRITZBox-JJ` (backup) |
-| Tailscale | 100.78.252.86 |
-| Workload | Ferdinand infotainment stack — `nats-server`, `nats-gateway`, `nats-sim`, `navi`, `media` |
-| GUI | `infotainment-slint` **disabled** — no HDMI display attached |
-| Source | `~/GitHub/ferdinand` on the Mac, deployed to `/opt/infotainment/bin` |
+| Boot time | 4.4 s to `multi-user.target` |
+| RAM in use | ~266 MB idle |
+| Workload | none — clean base system, ready for a new project |
+
+The previous *Ferdinand* infotainment deployment (`nats-server`, `nats-gateway`, `nats-sim`,
+`navi`, `media`, `infotainment-slint`, plus its D-Bus policy and `seatd`) was removed in
+Nov 2026 after a full backup. Sources remain at `~/GitHub/ferdinand` on the Mac; the deploy
+script pushed binaries to `/opt/infotainment/bin`. Tailscale was removed at the same time.
